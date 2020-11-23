@@ -110,7 +110,7 @@ def main() -> None:
     # Forex pairs and weeks to analyze
     # Response function analysis
     # The other years will be downloaded with the spread data
-    years_1: List[str] = ['2008', '2014']
+    years_1: List[str] = ['2019']
     fx_pairs_1: List[str] = ['eur_usd', 'gbp_usd', 'usd_jpy', 'aud_usd',
                              'usd_chf', 'usd_cad', 'nzd_usd']
 
@@ -120,28 +120,6 @@ def main() -> None:
     # Run analysis
     # Download data
     hist_download_all_data(fx_pairs_1, years_1)
-
-    # Spread impact analysis
-    years_2: List[str] = ['2011', '2015', '2019']
-    fx_pairs_2: List[str] = ['aud_cad', 'aud_chf', 'aud_jpy', 'aud_nzd',
-                             'aud_usd', 'cad_chf', 'cad_jpy', 'chf_jpy',
-                             'eur_aud', 'eur_cad', 'eur_chf', 'eur_czk',
-                             'eur_gbp', 'eur_huf', 'eur_jpy', 'eur_nok',
-                             'eur_nzd', 'eur_pln', 'eur_sek', 'eur_try',
-                             'eur_usd', 'gbp_aud', 'gbp_cad', 'gbp_chf',
-                             'gbp_jpy', 'gbp_nzd', 'gbp_usd', 'nzd_cad',
-                             'nzd_chf', 'nzd_jpy', 'nzd_usd', 'sgd_jpy',
-                             'usd_cad', 'usd_chf', 'usd_czk', 'usd_dkk',
-                             'usd_hkd', 'usd_huf', 'usd_jpy', 'usd_mxn',
-                             'usd_nok', 'usd_pln', 'usd_sek', 'usd_sgd',
-                             'usd_try', 'usd_zar']
-
-    # Basic folders
-    hist_data_tools_download.hist_start_folders(fx_pairs_2, years_2)
-
-    # Run analysis
-    # Download data
-    hist_download_all_data(fx_pairs_2, years_2)
 
     print('Ay vamos!!!')
 
