@@ -5,11 +5,10 @@ whole implementation. These tools improve the way the tasks are standardized
 in the modules that use them.
 
 This script requires the following modules:
-    * os
-    * pickle
-    * typing
     * matplotlib
+    * os
     * pandas
+    * pickle
 
 The module contains the following functions:
     * hist_save_data - saves computed data.
@@ -18,8 +17,6 @@ The module contains the following functions:
     * hist_function_header_print_plot - prints info about the plot.
     * hist_start_folders - creates folders to save data and plots.
     * hist_initial_message - prints the initial message with basic information.
-    * hist_sundays - generates a tuple with the dates of every sunday in a
-      year.
     * hist_weeks - generates a tuple with the number of weeks in a year.
     * main - the main function of the script.
 
@@ -34,7 +31,6 @@ import pickle
 from typing import Any, List, Tuple
 
 from matplotlib import pyplot as plt  # type: ignore
-import pandas as pd  # type: ignore
 
 # -----------------------------------------------------------------------------
 
@@ -57,22 +53,22 @@ def hist_save_data(data: Any, fx_pair: str, year: str, week: str) -> None:
     # Saving data
 
     if (not os.path.isdir(
-            f'../../hist_data/extraction_data_{year}/hist_fx_data_extraction'
-            + f'_week/{fx_pair}/')):
+            f'../../hist_data/physical_basic_data_{year}/hist_fx_physical'
+            + f'_basic_data/{fx_pair}/')):
 
         try:
             os.mkdir(
-                f'../../hist_data/extraction_data_{year}/hist_fx_data'
-                + f'_extraction_week/{fx_pair}/')
+                f'../../hist_data/physical_basic_data_{year}/hist_fx_physical'
+                + f'_basic_data/{fx_pair}/')
             print('Folder to save data created')
 
         except FileExistsError:
             print('Folder exists. The folder was not created')
 
-    pickle.dump(data, open(f'../../hist_data/extraction_data_{year}/'
-                           + f'/hist_fx_data_extraction_week/{fx_pair}/hist_fx'
-                           + f'_data_extraction_week_{fx_pair}_w{week}.pickle',
-                           'wb'))
+    pickle.dump(data,
+                open(f'../../hist_data/physical_basic_data_{year}/hist_fx'
+                     + f'_physical_basic_data/{fx_pair}/hist_fx_physical_basic'
+                     + f'_data_{fx_pair}_w{week}.pickle', 'wb'))
 
     print('Data Saved')
     print()
@@ -100,17 +96,17 @@ def hist_save_plot(function_name: str, figure: plt.Figure, fx_pair: str,
     # Saving plot data
 
     if (not os.path.isdir(
-            f'../../hist_plot/extraction_plot_{year}/{function_name}/')):
+            f'../../hist_plot/physical_basic_plot_{year}/{function_name}/')):
 
         try:
-            os.mkdir(f'../../hist_plot/extraction_plot_{year}/'
+            os.mkdir(f'../../hist_plot/physical_basic_plot_{year}/'
                      + f'{function_name}/')
             print('Folder to save data created')
 
         except FileExistsError:
             print('Folder exists. The folder was not created')
 
-    figure.savefig(f'../../hist_plot/extraction_plot_{year}'
+    figure.savefig(f'../../hist_plot/physical_basic_plot_{year}'
                    + f'/{function_name}/{function_name}_{year}{month}'
                    + f'_{fx_pair}.png')
 
@@ -171,8 +167,7 @@ def hist_function_header_print_plot(function_name: str, fx_pair: str,
 def hist_start_folders(years: List[str]) -> None:
     """Creates the initial folders to save the data and plots.
 
-    :param years: List of the strings of the year to be analyzed
-     (i.e ['2016', '2017']).
+    :param year: string of the year to be analyzed (i.e '2016').
     :return: None -- The function creates folders and does not return a value.
     """
 
@@ -180,8 +175,10 @@ def hist_start_folders(years: List[str]) -> None:
     for year in years:
 
         try:
-            os.mkdir(f'../../hist_data/extraction_data_{year}')
-            os.mkdir(f'../../hist_plot/extraction_plot_{year}')
+            os.mkdir(f'../../hist_data/physical_basic_data_{year}')
+            os.mkdir(f'../../hist_data/physical_basic_data_{year}/hist_fx'
+                     + f'_physical_basic_data')
+            os.mkdir(f'../../hist_plot/physical_basic_plot_{year}')
             print('Folder to save data created')
 
         except FileExistsError as error:
@@ -198,9 +195,9 @@ def hist_initial_message() -> None:
     """
 
     print()
-    print('####################')
-    print('HIST Data Extraction')
-    print('####################')
+    print('########################')
+    print('HIST Physical Basic Data')
+    print('########################')
     print('AG Guhr')
     print('Faculty of Physics')
     print('University of Duisburg-Essen')
@@ -210,27 +207,6 @@ def hist_initial_message() -> None:
     print('* https://github.com/juanhenao21/forex_matrices')
     # print('* https://forex-response_spread-year.readthedocs.io/en/latest/')
     print()
-
-# -----------------------------------------------------------------------------
-
-
-def hist_sundays(year: str) -> Tuple[str, ...]:
-    """Generates a list with the dates of every sunday in a year.
-
-    :param year: string of the year to be analyzed (i.e '2016').
-    :return: tuple.
-    """
-
-    init_date: str = f'01/01/{year}'
-    last_date: str = f'12/31/{year}'
-
-    # Get the date of every Sunday
-    s_date: pd.DatetimeIndex = pd.date_range(start=init_date, end=last_date,
-                                             freq='W')
-    s_date_df: pd.DataFrame = s_date.to_frame(index=False)
-    date_list: List[str] = s_date_df[0].astype(str).tolist()
-
-    return tuple(date_list)
 
 # -----------------------------------------------------------------------------
 

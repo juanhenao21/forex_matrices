@@ -107,8 +107,8 @@ def hist_initial_message() -> None:
     print('Author: Juan Camilo Henao Londono')
     print('More information in:')
     print('* https://juanhenao21.github.io/')
-    print('* https://github.com/juanhenao21/forex_response_spread_year')
-    print('* https://forex-response_spread-year.readthedocs.io/en/latest/')
+    print('* https://github.com/juanhenao21/forex_matrices')
+    # print('* https://forex-response_spread-year.readthedocs.io/en/latest/')
     print()
 
 # -----------------------------------------------------------------------------
