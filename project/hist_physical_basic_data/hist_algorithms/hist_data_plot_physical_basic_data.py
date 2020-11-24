@@ -13,7 +13,7 @@ This script requires the following modules:
 
 The module contains the following functions:
     * hist_fx_midpoint_year_plot - plots the forex quotes for a year.
-    * hist_fx_returns_year_plot - plots the returns for a year.
+    * hist_fx_returns_year_plot - plots the forex returns for a year.
     * main - the main function of the script.
 
 .. moduleauthor:: Juan Camilo Henao Londono <www.github.com/juanhenao21>

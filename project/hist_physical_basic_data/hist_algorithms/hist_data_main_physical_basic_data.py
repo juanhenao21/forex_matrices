@@ -61,6 +61,8 @@ def hist_data_plot_generator(fx_pairs: List[str], years: List[str],
             # Plot
             hist_data_plot_physical_basic_data \
                 .hist_fx_midpoint_year_plot(fx_pair, year, weeks)
+            hist_data_plot_physical_basic_data \
+                .hist_fx_returns_year_plot(fx_pair, year, weeks)
 
 # -----------------------------------------------------------------------------
 
