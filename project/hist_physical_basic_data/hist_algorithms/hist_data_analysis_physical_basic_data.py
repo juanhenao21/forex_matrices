@@ -51,7 +51,7 @@ def hist_fx_physical_data(fx_pair: str, year: str, week: str) -> None:
                         + f'_extraction_week/{fx_pair}/hist_fx_data_extraction'
                         + f'_week_{fx_pair}_w{week}.pickle', 'rb'))
 
-        fx_data_p = fx_data['Midpoint']
+        fx_data_p = fx_data[['Midpoint']]
 
         # Days in the week
         dates: List[dt.date] = sorted(set(fx_data.index))
@@ -83,7 +83,8 @@ def hist_fx_physical_data(fx_pair: str, year: str, week: str) -> None:
         fx_data_p = pd.concat(series, axis=1)
         fx_data_p['Midpoint'] = fx_data_p['Midpoint'].fillna(method='ffill')
         fx_data_p['Midpoint'] = fx_data_p['Midpoint'].fillna(method='bfill')
-        fx_data_p['Returns'] = fx_data_p['Midpoint'].pct_change().dropna()
+        fx_data_p['Returns'] = fx_data_p['Midpoint'].pct_change()
+        fx_data_p = fx_data_p.dropna()
 
         # Saving data
         hist_data_tools_physical_basic_data \
