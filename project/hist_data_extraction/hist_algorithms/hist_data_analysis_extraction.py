@@ -20,8 +20,6 @@ The module contains the following functions:
     * hist_fx_weekend_start - extracts data that starts in a weekend day.
     * hist_fx_midpoint_trade_data - extracts the midpoint price for
       a year
-    * hist_fx_trade_signs_trade_data - extracts the midpoint price
-      for a year
     * main - the main function of the script.
 
 ..moduleauthor:: Juan Camilo Henao Londono <www.github.com/juanhenao21>
@@ -302,49 +300,6 @@ def hist_fx_midpoint_trade_data(fx_pair: str, year: str, week: str) -> None:
 
         fx_data['Midpoint'] = (fx_data['Ask'] + fx_data['Bid']) / 2
         fx_data['Spread'] = fx_data['Ask'] - fx_data['Bid']
-
-        # Saving data
-        hist_data_tools_extraction.hist_save_data(fx_data, fx_pair, year, week)
-
-        del fx_data
-
-    except FileNotFoundError as error:
-        print('No data')
-        print(error)
-        print()
-
-# -----------------------------------------------------------------------------
-
-
-def hist_fx_trade_signs_trade_data(fx_pair: str, year: str, week: str) -> None:
-    """Extracts the trade signs price for a year.
-
-    The trade signs are obtained from the midpoint price as
-    :math:`\\epsilon(t) = sign(m(t) - m(t - 1))`, where +1 indicates the trade
-    was triggered by a market order to buy, and -1 indicates the trade was
-    triggered by a market order to sell.
-
-    :param fx_pair: string of the abbreviation of the forex pair to be analyzed
-     (i.e. 'eur_usd').
-    :param year: string of the year to be analyzed (i.e. '2016').
-    :return: None -- The function saves the data in a file and does not return
-     a value.
-    """
-
-    try:
-        # Load data
-        fx_data: pd.DataFrame = pickle.load(open(
-                        f'../../hist_data/extraction_data_{year}/hist_fx_data'
-                        + f'_extraction_week/{fx_pair}/hist_fx_data_extraction'
-                        + f'_week_{fx_pair}_w{week}.pickle', 'rb'))
-
-        trade_signs_bef: pd.Series = np.sign(fx_data['Midpoint'].diff())
-        trade_signs_bef[trade_signs_bef == 0] =\
-            trade_signs_bef[trade_signs_bef == 0] * np.nan
-        trade_signs_bef.iloc[0] = 1
-        trade_signs: pd.Series = trade_signs_bef.fillna(method='ffill')
-
-        fx_data['Signs'] = trade_signs
         fx_data.set_index('DateTime', inplace=True)
 
         # Saving data
@@ -358,7 +313,6 @@ def hist_fx_trade_signs_trade_data(fx_pair: str, year: str, week: str) -> None:
         print()
 
 # -----------------------------------------------------------------------------
-
 
 def main() -> None:
     """The main function of the script.

@@ -62,22 +62,11 @@ def hist_data_plot_generator(fx_pairs: List[str], years: List[str],
                      .hist_fx_midpoint_trade_data,
                      iprod(fx_pairs, years, weeks))
 
-    # Parallel computing
-    with mp.Pool(processes=mp.cpu_count()) as pool:
-        # Basic functions
-        pool.starmap(hist_data_analysis_extraction
-                     .hist_fx_trade_signs_trade_data,
-                     iprod(fx_pairs, years, weeks))
-
     for fx_pair in fx_pairs:
         for year in years:
             # Plot
             hist_data_plot_extraction \
-                .hist_fx_quotes_year_plot(fx_pair, year, weeks)
-            hist_data_plot_extraction \
                 .hist_fx_midpoint_year_plot(fx_pair, year, weeks)
-            hist_data_plot_extraction \
-                .hist_fx_spread_year_plot(fx_pair, year, weeks)
 
 # -----------------------------------------------------------------------------
 
