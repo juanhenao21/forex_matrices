@@ -35,15 +35,13 @@ from matplotlib import pyplot as plt  # type: ignore
 # -----------------------------------------------------------------------------
 
 
-def hist_save_data(data: Any, fx_pair: str, year: str) -> None:
+def hist_save_data(data: Any, year: str) -> None:
     """Saves computed data in pickle files.
 
     Saves the data generated in the functions of the
-    hist_data_analysis_responses_physical module in pickle files.
+    hist_data_analysis_matrices_physical module in pickle files.
 
     :param data: data to be saved. The data can be of different types.
-    :param fx_pair: string of the abbreviation of the forex pair to be analyzed
-     (i.e. 'eur_usd').
     :param year: string of the year to be analyzed (i.e '2016').
     :return: None -- The function saves the data in a file and does not return
      a value.
@@ -52,23 +50,21 @@ def hist_save_data(data: Any, fx_pair: str, year: str) -> None:
     # Saving data
 
     if (not os.path.isdir(
-            f'../../hist_data/responses_physical_{year}/hist_fx_self_response'
-            + f'_year_responses_physical_data/{fx_pair}/')):
+            f'../../hist_data/matrices_physical_{year}/hist_fx_matrices'
+            + f'_physical_data/')):
 
         try:
             os.mkdir(
-                f'../../hist_data/responses_physical_{year}/hist_fx_self'
-                + f'_response_year_responses_physical_data/{fx_pair}/')
+                f'../../hist_data/matrices_physical_{year}/hist_fx_matrices'
+                + f'_physical_data/')
             print('Folder to save data created')
 
         except FileExistsError:
             print('Folder exists. The folder was not created')
 
     pickle.dump(data, open(
-        f'../../hist_data/responses_physical_{year}/hist_fx_self_response_year'
-                + f'_responses_physical_data/{fx_pair}/hist_fx_self_response'
-                + f'_year_responses_physical_data_{fx_pair}_{year}.pickle',
-                'wb'))
+        f'../../hist_data/matrices_physical_{year}/hist_fx_matrices_physical'
+                + f'_data/hist_fx_matrices_physical_data_{year}.pickle', 'wb'))
 
     print('Data Saved')
     print()
@@ -81,12 +77,10 @@ def hist_save_plot(function_name: str, figure: plt.Figure, fx_pair: str,
     """Saves plot in png files.
 
     Saves the plot generated in the functions of the
-    hist_data_plot_responses_trade module in png files.
+    hist_data_plot_matrices_trade module in png files.
 
     :param function_name: name of the function that generates the plot.
     :param figure: figure object that is going to be save.
-    :param fx_pair: string of the abbreviation of the forex pair to be analyzed
-     (i.e. 'eur_usd').
     :param year: string of the year to be analyzed (i.e '2016').
     :param month: string of the month to be analyzed (i.e '07').
     :return: None -- The function save the plot in a file and does not return
@@ -176,8 +170,8 @@ def hist_start_folders(years: List[str]) -> None:
     for year in years:
 
         try:
-            os.mkdir(f'../../hist_data/responses_physical_{year}')
-            os.mkdir(f'../../hist_plot/responses_physical_{year}')
+            os.mkdir(f'../../hist_data/matrices_physical_{year}')
+            os.mkdir(f'../../hist_plot/matrices_physical_{year}')
             print('Folder to save data created')
             print()
 
@@ -196,7 +190,7 @@ def hist_initial_message() -> None:
 
     print()
     print('####################################################')
-    print('HIST Price Response Functions Physical Time Analysis')
+    print('HIST Matrices Physical Time Analysis')
     print('####################################################')
     print('AG Guhr')
     print('Faculty of Physics')
@@ -204,8 +198,8 @@ def hist_initial_message() -> None:
     print('Author: Juan Camilo Henao Londono')
     print('More information in:')
     print('* https://juanhenao21.github.io/')
-    print('* https://github.com/juanhenao21/forex_response_spread_year')
-    print('* https://forex-response_spread-year.readthedocs.io/en/latest/')
+    print('* https://github.com/juanhenao21/forex_matrices')
+    # print('* https://forex-response_spread-year.readthedocs.io/en/latest/')
     print()
 
 # -----------------------------------------------------------------------------

@@ -13,10 +13,8 @@ This script requires the following modules:
     * pandas
 
 The module contains the following functions:
-    * hist_fx_self_response_week_responses_physical - extracts the midpoint
-      price for a week.
-    * hist_fx_self_response_year_responses_physical - extracts the midpoint
-      price for a year.
+    * hist_fx_corr_physical - computes the correlation matrices for different
+      time intervals.
     * main - the main function of the script.
 
 ..moduleauthor:: Juan Camilo Henao Londono <www.github.com/juanhenao21>
@@ -33,78 +31,106 @@ from typing import Iterator, List, Tuple
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 
-import hist_data_tools_responses_physical
-
-__tau__ = 10000
+import hist_data_tools_matrices_physical
 
 # -----------------------------------------------------------------------------
 
 
-def hist_fx_self_response_week_responses_physical_data(
-        fx_pair: str, year: str, week: str) -> Tuple[np.ndarray, ...]:
-    """Computes the self-response of a year.
+def hist_fx_returns_year_physical_data(fx_pairs: List[str], year: str) -> None:
+    """Concatenate the returns of a year for different forex pairs.
 
-    Using the midpoint price and the trade signs of a ticker computes the
-    self-response during different time lags (:math:`\\tau`) for a year.
-
-    :param fx_pair: string of the abbreviation of the forex pair to be analyzed
-     (i.e. 'eur_usd').
+    :param fx_pairs: list of the string abbreviation of the forex pairs to be
+     analyzed (i.e. ['eur_usd', 'gbp_usd']).
     :param year: string of the year to be analyzed (i.e. '2016').
-    :param week: string of the week to be analyzed (i.e. '01').
-    :return: tuple -- The function returns a tuple with numpy arrays.
+    :return: None -- The function saves the data in a file and does not return
+     a value.
     """
 
+    weeks: Tuple[str, ...] = hist_data_tools_matrices_physical.hist_weeks()
+
     try:
-        # Load data
-        fx_data: pd.DataFrame = pickle.load(open(
-                        f'../../hist_data/physical_basic_data_{year}/hist_fx'
-                        + f'_physical_basic_data/{fx_pair}/hist_fx_physical'
-                        + f'_basic_data_{fx_pair}_w{week}.pickle', 'rb'))
 
-        midpoint: np.ndarray = fx_data['Midpoint'].to_numpy()
-        trade_signs: np.ndarray = fx_data['Signs'].to_numpy()
+        fx_df_concat: pd.DataFrame = pd.DataFrame()
 
-        # Relate the return of the previous second with the current trade sign
-        midpoint = midpoint[:-1]
-        trade_signs = trade_signs[1:]
+        fx_pair: str
+        for fx_pair in fx_pairs:
+            # Load first week data
+            fx_data: pd.DataFrame = pickle.load(open(
+                            f'../../hist_data/physical_basic_data_{year}/hist_fx'
+                            + f'_physical_basic_data/{fx_pair}/hist_fx_physical'
+                            + f'_basic_data_{fx_pair}_w01.pickle', 'rb'))
+            fx_series_concat = fx_data['Returns']
 
-        assert len(midpoint) == len(trade_signs)
+            week: str
+            for week in weeks[1:]:
+                # Load data
+                fx_data: pd.DataFrame = pickle.load(open(
+                                f'../../hist_data/physical_basic_data_{year}/hist_fx'
+                                + f'_physical_basic_data/{fx_pair}/hist_fx_physical'
+                                + f'_basic_data_{fx_pair}_w{week}.pickle', 'rb'))
 
-        # Array of the average of each tau
-        self_response_tau: np.ndarray = np.zeros(__tau__)
-        num: np.ndarray = np.zeros(__tau__)
+                fx_series_concat = pd.concat([fx_series_concat, fx_data['Returns']])
 
-        # Calculating the midpoint price return and the self-response function
-        # Depending on the tau value
-        tau_idx: int
-        for tau_idx in range(__tau__):
+            fx_df_concat = pd.concat([fx_df_concat, fx_series_concat], axis=1).rename(columns={'Returns': fx_pair})
 
-            trade_sign_tau: np.ndarray = trade_signs[:-tau_idx - 1]
-            trade_sign_no_0_len: int = len(trade_sign_tau[trade_sign_tau != 0])
-            num[tau_idx] = trade_sign_no_0_len
-            # Obtain the midpoint price return. Displace the numerator tau
-            # values to the right and compute the return
+        if (not os.path.isdir(
+                f'../../hist_data/matrices_physical_{year}/hist_fx_matrices'
+                + f'_physical_data/')):
 
-            # Midpoint price returns
-            log_return_sec: np.ndarray = (midpoint[tau_idx + 1:]
-                                          - midpoint[:-tau_idx - 1]) \
-                / midpoint[:-tau_idx - 1]
+            try:
+                os.mkdir(
+                    f'../../hist_data/matrices_physical_{year}/hist_fx_matrices'
+                    + f'_physical_data/')
+                print('Folder to save data created')
 
-            # Obtain the self response value
-            if trade_sign_no_0_len != 0:
-                product: np.ndarray = log_return_sec * trade_sign_tau
-                self_response_tau[tau_idx] = np.sum(product)
+            except FileExistsError:
+                print('Folder exists. The folder was not created')
+
+        pickle.dump(fx_df_concat, open(f'../../hist_data/matrices_physical_{year}/hist_fx_matrices_physical_data/hist_fx_returns_matrices_physical_data_{year}.pickle', 'wb'))
 
         del fx_data
-
-        return (self_response_tau, num)
+        del fx_series_concat
+        del fx_df_concat
 
     except FileNotFoundError as error:
         print('No data')
         print(error)
         print()
-        zeros = np.zeros(__tau__)
-        return (zeros, zeros)
+
+# -----------------------------------------------------------------------------
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+def hist_fx_correlations_physical_data(year: str, interval: str) -> None:
+    """Computes the correlation matrix in an interval of time.
+
+    :param year: string of the year to be analyzed (i.e. '2016').
+    :param interval:
+    :return: None -- The function saves the data in a file and does not return
+     a value.
+    """
+
+    try:
+        # Load data
+        fx_returns: pd.DataFrame = pickle.load(open(
+                        f'../../hist_data/matrices_physical_{year}/hist_fx'
+                        + f'_matrices_physical_data/hist_fx_returns_matrices_physical'
+                        + f'_data_{year}.pickle', 'rb'))
+
+        corr = fx_returns.corr()
+
+        sns.heatmap(corr, xticklabels=corr.columns, yticklabels=corr.columns)
+        plt.show()
+
+
+        del fx_returns
+
+
+    except FileNotFoundError as error:
+        print('No data')
+        print(error)
+        print()
 
 # ----------------------------------------------------------------------------
 
@@ -175,6 +201,7 @@ def hist_fx_self_response_year_responses_physical_data(
 
     return (self_response_val, self_response_avg)
 
+
 # -----------------------------------------------------------------------------
 
 
@@ -185,6 +212,13 @@ def main() -> None:
 
     :return: None.
     """
+
+    fx_pairs: List[str] = ['eur_usd', 'gbp_usd', 'usd_jpy', 'aud_usd',
+                             'usd_chf', 'usd_cad', 'nzd_usd']
+
+    # hist_fx_returns_year_physical_data(fx_pairs, ['2019'])
+
+    hist_fx_correlations_physical_data('2019', 'x')
 
 # -----------------------------------------------------------------------------
 
