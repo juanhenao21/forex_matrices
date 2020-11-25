@@ -6,13 +6,12 @@ hist_data_analysis_responses_physical module.
 This script requires the following modules:
     * gc
     * pickle
-    * typing
     * matplotlib
+    * pandas
     * hist_data_tools_data_extract
 
 The module contains the following functions:
-    * hist_fx_self_response_year_avg_responses_physical_plot - plots the
-      self-response average for a year.
+    * hist_fx_correlations_physical_plot - plots the correlation matrices.
     * main - the main function of the script.
 
 .. moduleauthor:: Juan Camilo Henao Londono <www.github.com/juanhenao21>
@@ -25,61 +24,92 @@ import gc
 import pickle
 
 from matplotlib import pyplot as plt  # type: ignore
-import numpy as np  # type: ignore
+import pandas as pd # type: ignore
+import seaborn as sns # type: ignore
 
-import hist_data_tools_responses_physical
-
-__tau__ = 10000
+import hist_data_tools_matrices_physical
 
 # ----------------------------------------------------------------------------
 
 
-def hist_fx_self_response_year_avg_responses_physical_plot(
-        fx_pair: str, year: str) -> None:
-    """Plots the self-response average for a year.
+def hist_fx_correlations_physical_plot(year: str, interval: str) -> None:
+    """Plots the correlation matrix for different intervals of time.
 
-    :param fx_pair: string of the abbreviation of the forex pair to be analyzed
-     (i.e. 'eur_usd').
     :param year: string of the year to be analyzed (i.e. '2016').
+    :param interval: string of the interval to be analyzed (i.e. 'week',
+     'month', 'quarter', 'year')
     :return: None -- The function saves the plot in a file and does not return
      a value.
     """
 
+    function_name: str = \
+        hist_fx_correlations_physical_plot.__name__
+    hist_data_tools_matrices_physical \
+        .hist_function_header_print_plot(function_name, year)
+
     try:
-        function_name: str = \
-            hist_fx_self_response_year_avg_responses_physical_plot.__name__
-        hist_data_tools_responses_physical \
-            .hist_function_header_print_plot(function_name, fx_pair, year, '')
 
-        fx_pair_upper: str = fx_pair[:3].upper() + '/' + fx_pair[4:].upper()
+        periods: int
+        n_cols: int
+        n_rows: int
+        if interval == 'week':
+            periods = 52
+            n_cols = 13
+            n_rows = 4
+        elif interval == 'month':
+            periods = 12
+            n_cols = 4
+            n_rows = 3
+        elif interval == 'quarter':
+            periods = 4
+            n_cols = 2
+            n_rows = 2
+        else:
+            periods = 1
+            n_cols = 1
+            n_rows = 1
 
-        figure: plt.Figure = plt.figure(figsize=(16, 9))
+        figure: plt.figure = plt.figure(figsize=(16, 9))
+        cbar_ax: plt.axes = figure.add_axes([0.91, 0.3, 0.03, 0.4])
 
-        # Load data
-        self_response: np.ndarray = pickle.load(open(
-                        f'../../hist_data/responses_physical_{year}/hist_fx'
-                        + f'_self_response_year_responses_physical_data/'
-                        + f'{fx_pair}/hist_fx_self_response_year_responses'
-                        + f'_physical_data_{fx_pair}_{year}.pickle', 'rb'))
+        for per in range(1, periods + 1):
 
-        plt.semilogx(self_response, linewidth=5, label=f'{fx_pair_upper}')
-        plt.legend(loc='best', fontsize=25)
-        plt.title(f'HIST data self-response', fontsize=40)
-        plt.xlabel(r'$\tau \, [trades]$', fontsize=35)
-        plt.ylabel(r'$R_{ii}(\tau)$', fontsize=35)
-        plt.xticks(fontsize=25)
-        plt.yticks(fontsize=25)
-        plt.xlim(1, __tau__)
-        plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
-        plt.grid(True)
-        plt.tight_layout()
+            if per < 10:
+                per_str: str = f'0{per}'
+            else:
+                per_str = f'{per}'
+
+            # Load data
+            corr: pd.DataFrame = pickle.load(open(
+                f'../../hist_data/matrices_physical_{year}/hist_fx_matrices'
+                + f'_physical_data/hist_fx_corr_physical_data_{year}_int'
+                + f'_{interval}_{per_str}.pickle', 'rb'))
+
+            ax_sub = plt.subplot(n_rows, n_cols, per)
+
+            if interval in ('week', 'month'):
+                sns.heatmap(corr, ax=ax_sub, cbar=per == 1,
+                            cbar_ax=None if (per-1) else cbar_ax)
+
+            else:
+                sns.heatmap(corr, annot=True, ax=ax_sub, cbar=per == 1,
+                            cbar_ax=None if (per-1) else cbar_ax)
+
+            if interval == 'week':
+                ax_sub.tick_params(axis='x', bottom=False, labelbottom=False)
+                ax_sub.tick_params(axis='y', left=False, labelleft=False)
+
+            plt.yticks(rotation=45)
+            plt.xticks(rotation=45)
+
+        figure.tight_layout(rect=[0, 0, .9, 1])
 
         # Plotting
-        hist_data_tools_responses_physical \
-            .hist_save_plot(function_name, figure, fx_pair, year, '')
+        hist_data_tools_matrices_physical \
+            .hist_save_plot(function_name, figure, year, interval)
 
         plt.close()
-        del self_response
+        del corr
         del figure
         gc.collect()
 

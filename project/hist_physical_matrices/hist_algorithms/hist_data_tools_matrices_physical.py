@@ -35,7 +35,7 @@ from matplotlib import pyplot as plt  # type: ignore
 # -----------------------------------------------------------------------------
 
 
-def hist_save_data(data: Any, year: str) -> None:
+def hist_save_data(data: Any, year: str, interval: str, period: str) -> None:
     """Saves computed data in pickle files.
 
     Saves the data generated in the functions of the
@@ -43,6 +43,9 @@ def hist_save_data(data: Any, year: str) -> None:
 
     :param data: data to be saved. The data can be of different types.
     :param year: string of the year to be analyzed (i.e '2016').
+    :param interval: string of the interval to be analyzed (i.e. 'week',
+     'month', 'quarter', 'year')
+    :param period: location in the interval (i. e. '01')
     :return: None -- The function saves the data in a file and does not return
      a value.
     """
@@ -64,7 +67,8 @@ def hist_save_data(data: Any, year: str) -> None:
 
     pickle.dump(data, open(
         f'../../hist_data/matrices_physical_{year}/hist_fx_matrices_physical'
-                + f'_data/hist_fx_matrices_physical_data_{year}.pickle', 'wb'))
+                + f'_data/hist_fx_corr_physical_data_{year}_int_{interval}'
+                + f'_{period}.pickle', 'wb'))
 
     print('Data Saved')
     print()
@@ -72,8 +76,8 @@ def hist_save_data(data: Any, year: str) -> None:
 # -----------------------------------------------------------------------------
 
 
-def hist_save_plot(function_name: str, figure: plt.Figure, fx_pair: str,
-                   year: str, month: str) -> None:
+def hist_save_plot(function_name: str, figure: plt.Figure, year: str,
+                   interval: str) -> None:
     """Saves plot in png files.
 
     Saves the plot generated in the functions of the
@@ -82,7 +86,8 @@ def hist_save_plot(function_name: str, figure: plt.Figure, fx_pair: str,
     :param function_name: name of the function that generates the plot.
     :param figure: figure object that is going to be save.
     :param year: string of the year to be analyzed (i.e '2016').
-    :param month: string of the month to be analyzed (i.e '07').
+    :param interval: string of the interval to be analyzed (i.e. 'week',
+     'month', 'quarter', 'year')
     :return: None -- The function save the plot in a file and does not return
      a value.
     """
@@ -90,19 +95,19 @@ def hist_save_plot(function_name: str, figure: plt.Figure, fx_pair: str,
     # Saving plot data
 
     if (not os.path.isdir(
-            f'../../hist_plot/responses_physical_{year}/{function_name}/')):
+            f'../../hist_plot/matrices_physical_{year}/{function_name}/')):
 
         try:
-            os.mkdir(f'../../hist_plot/responses_physical_{year}/'
+            os.mkdir(f'../../hist_plot/matrices_physical_{year}/'
                      + f'{function_name}/')
             print('Folder to save data created')
 
         except FileExistsError:
             print('Folder exists. The folder was not created')
 
-    figure.savefig(f'../../hist_plot/responses_physical_{year}'
-                   + f'/{function_name}/{function_name}_{year}{month}'
-                   + f'_{fx_pair}.png')
+    figure.savefig(f'../../hist_plot/matrices_physical_{year}'
+                   + f'/{function_name}/{function_name}'
+                   + f'_{year}_{interval}.png')
 
     print('Plot saved')
     print()
@@ -110,15 +115,13 @@ def hist_save_plot(function_name: str, figure: plt.Figure, fx_pair: str,
 # -----------------------------------------------------------------------------
 
 
-def hist_function_header_print_data(function_name: str, fx_pair: str,
-                                    year: str, week: str) -> None:
+def hist_function_header_print_data(function_name: str, year: str,
+                                    kind: str) -> None:
     """Prints a header of a function that generates data when it is running.
 
     :param function_name: name of the function that generates the data.
-    :param fx_pair: string of the abbreviation of the forex pair to be analyzed
-     (i.e. 'eur_usd').
     :param year: string of the year to be analyzed (i.e '2016').
-    :param week: string of the week to be analyzed (i.e '07').
+    :param kind: kind of analysis (i.e 'returns').
     :return: None -- The function prints a message and does not return a
      value.
     """
@@ -126,23 +129,21 @@ def hist_function_header_print_data(function_name: str, fx_pair: str,
     print('HIST data')
     print(function_name)
 
-    fx_pair_upper: str = fx_pair[:3].upper() + '/' + fx_pair[4:].upper()
-    print(f'Processing data for the forex pair {fx_pair_upper} in the week '
-          + f'{week} of {year}')
-    print()
+    if kind == 'returns':
+        print(f'Processing the returns in the year {year}')
+        print()
+    else:
+        print(f'Processing correlation matrices in the year {year}')
+        print()
 
 # -----------------------------------------------------------------------------
 
 
-def hist_function_header_print_plot(function_name: str, fx_pair: str,
-                                    year: str, month: str) -> None:
+def hist_function_header_print_plot(function_name: str, year: str) -> None:
     """Prints a header of a function that generates a plot when it is running.
 
     :param function_name: name of the function that generates the plot.
-    :param fx_pair: string of the abbreviation of the forex pair to be analyzed
-     (i.e. 'eur_usd').
     :param year: string of the year to be analyzed (i.e '2016').
-    :param month: string of the month to be analyzed (i.e '07').
     :return: None -- The function prints a message and does not return a
      value.
     """
@@ -150,9 +151,7 @@ def hist_function_header_print_plot(function_name: str, fx_pair: str,
     print('HIST data')
     print(function_name)
 
-    fx_pair_upper: str = fx_pair[:3].upper() + '/' + fx_pair[4:].upper()
-    print(f'Processing plot for the forex pair {fx_pair_upper} the '
-          + f'{year}.{month}')
+    print(f'Processing plot for correlation matrices in {year}')
     print()
 
 # -----------------------------------------------------------------------------
@@ -189,9 +188,9 @@ def hist_initial_message() -> None:
     """
 
     print()
-    print('####################################################')
+    print('#####################################')
     print('HIST Matrices Physical Time Analysis')
-    print('####################################################')
+    print('#####################################')
     print('AG Guhr')
     print('Faculty of Physics')
     print('University of Duisburg-Essen')
