@@ -9,7 +9,6 @@ This script requires the following modules:
     * pickle
     * typing
     * matplotlib
-    * numpy
 
 The module contains the following functions:
     * hist_save_data - saves computed data.
@@ -33,7 +32,6 @@ import pickle
 from typing import Any, List, Tuple
 
 from matplotlib import pyplot as plt  # type: ignore
-import numpy as np  # type: ignore
 
 # -----------------------------------------------------------------------------
 
@@ -56,22 +54,22 @@ def hist_save_data(data: Any, year: str, interval: str, period: str) -> None:
     # Saving data
 
     if (not os.path.isdir(
-            f'../../hist_data/matrices_physical_{year}/hist_fx_matrices'
-            + f'_physical_data/')):
+            f'../../hist_data/eigenvectors_physical_{year}/hist_fx'
+            + f'_eigenvectors_physical_data/')):
 
         try:
             os.mkdir(
-                f'../../hist_data/matrices_physical_{year}/hist_fx_matrices'
-                + f'_physical_data/')
+                f'../../hist_data/eigenvectors_physical_{year}/hist_fx'
+                + f'_eigenvectors_physical_data/')
             print('Folder to save data created')
 
         except FileExistsError:
             print('Folder exists. The folder was not created')
 
     pickle.dump(data, open(
-        f'../../hist_data/matrices_physical_{year}/hist_fx_matrices_physical'
-                + f'_data/hist_fx_corr_physical_data_{year}_int_{interval}'
-                + f'_{period}.pickle', 'wb'))
+        f'../../hist_data/eigenvectors_physical_{year}/hist_fx_eigenvectors'
+                + f'_physical_data/hist_fx_eigenvectors_physical_data_{year}'
+                + f'_int_{interval}_{period}.pickle', 'wb'))
 
     print('Data Saved')
     print()
@@ -98,17 +96,17 @@ def hist_save_plot(function_name: str, figure: plt.Figure, year: str,
     # Saving plot data
 
     if (not os.path.isdir(
-            f'../../hist_plot/matrices_physical_{year}/{function_name}/')):
+            f'../../hist_plot/eigenvectors_physical_{year}/{function_name}/')):
 
         try:
-            os.mkdir(f'../../hist_plot/matrices_physical_{year}/'
+            os.mkdir(f'../../hist_plot/eigenvectors_physical_{year}/'
                      + f'{function_name}/')
             print('Folder to save data created')
 
         except FileExistsError:
             print('Folder exists. The folder was not created')
 
-    figure.savefig(f'../../hist_plot/matrices_physical_{year}'
+    figure.savefig(f'../../hist_plot/eigenvectors_physical_{year}'
                    + f'/{function_name}/{function_name}'
                    + f'_{year}_{interval}.png')
 
@@ -118,13 +116,11 @@ def hist_save_plot(function_name: str, figure: plt.Figure, year: str,
 # -----------------------------------------------------------------------------
 
 
-def hist_function_header_print_data(function_name: str, year: str,
-                                    kind: str) -> None:
+def hist_function_header_print_data(function_name: str, year: str) -> None:
     """Prints a header of a function that generates data when it is running.
 
     :param function_name: name of the function that generates the data.
     :param year: string of the year to be analyzed (i.e '2016').
-    :param kind: kind of analysis (i.e 'returns').
     :return: None -- The function prints a message and does not return a
      value.
     """
@@ -132,12 +128,8 @@ def hist_function_header_print_data(function_name: str, year: str,
     print('HIST data')
     print(function_name)
 
-    if kind == 'returns':
-        print(f'Processing the returns in the year {year}')
-        print()
-    else:
-        print(f'Processing correlation matrices in the year {year}')
-        print()
+    print(f'Processing the eigenvectors in the year {year}')
+    print()
 
 # -----------------------------------------------------------------------------
 
@@ -154,7 +146,7 @@ def hist_function_header_print_plot(function_name: str, year: str) -> None:
     print('HIST data')
     print(function_name)
 
-    print(f'Processing plot for correlation matrices in {year}')
+    print(f'Processing plot for eigenvectors in the year {year}')
     print()
 
 # -----------------------------------------------------------------------------
@@ -172,8 +164,8 @@ def hist_start_folders(years: List[str]) -> None:
     for year in years:
 
         try:
-            os.mkdir(f'../../hist_data/matrices_physical_{year}')
-            os.mkdir(f'../../hist_plot/matrices_physical_{year}')
+            os.mkdir(f'../../hist_data/eigenvectors_physical_{year}')
+            os.mkdir(f'../../hist_plot/eigenvectors_physical_{year}')
             print('Folder to save data created')
             print()
 
@@ -191,9 +183,9 @@ def hist_initial_message() -> None:
     """
 
     print()
-    print('#####################################')
-    print('HIST Matrices Physical Time Analysis')
-    print('#####################################')
+    print('########################################')
+    print('HIST Eigenvectors Physical Time Analysis')
+    print('########################################')
     print('AG Guhr')
     print('Faculty of Physics')
     print('University of Duisburg-Essen')
@@ -225,13 +217,6 @@ def hist_weeks() -> Tuple[str, ...]:
             week_num.append(f'{val}')
 
     return tuple(week_num)
-
-# -----------------------------------------------------------------------------
-
-
-def gaussian_distribution(mean, variance, x):
-    return (1 / (2 * np.pi * variance) ** 0.5) \
-        * np.exp(-((x - mean) ** 2) / (2 * variance))
 
 # -----------------------------------------------------------------------------
 
