@@ -53,14 +53,14 @@ def hist_data_plot_generator(fx_pairs: List[str], years: List[str],
 
         interval: str
         for interval in intervals:
-            # hist_data_analysis_matrices_physical. \
-            #     hist_fx_correlations_physical_data(year, interval)
-
-            # hist_data_plot_matrices_physical. \
-            #     hist_fx_correlations_physical_plot(year, interval)
+            hist_data_analysis_matrices_physical. \
+                hist_fx_correlations_physical_data(year, interval)
 
             hist_data_plot_matrices_physical. \
-                hist_fx_returns_distributions_physical_plot(year, interval)
+                hist_fx_correlations_physical_plot(year, interval)
+
+            # hist_data_plot_matrices_physical. \
+            #     hist_fx_returns_distributions_physical_plot(year, interval)
 
 # -----------------------------------------------------------------------------
 
