@@ -142,11 +142,13 @@ def hist_function_header_print_data(function_name: str, year: str,
 # -----------------------------------------------------------------------------
 
 
-def hist_function_header_print_plot(function_name: str, year: str) -> None:
+def hist_function_header_print_plot(function_name: str, year: str,
+                                    kind: str) -> None:
     """Prints a header of a function that generates a plot when it is running.
 
     :param function_name: name of the function that generates the plot.
     :param year: string of the year to be analyzed (i.e '2016').
+    :param kind: kind of analysis (i.e 'returns').
     :return: None -- The function prints a message and does not return a
      value.
     """
@@ -154,8 +156,12 @@ def hist_function_header_print_plot(function_name: str, year: str) -> None:
     print('HIST data')
     print(function_name)
 
-    print(f'Processing plot for correlation matrices in {year}')
-    print()
+    if kind == 'returns':
+        print(f'Processing plot for returns in the year {year}')
+        print()
+    else:
+        print(f'Processing plot for correlation matrices in {year}')
+        print()
 
 # -----------------------------------------------------------------------------
 
