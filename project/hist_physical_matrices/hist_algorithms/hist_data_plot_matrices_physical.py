@@ -50,7 +50,7 @@ def hist_fx_returns_distributions_physical_plot(year: str,
     function_name: str = \
         hist_fx_returns_distributions_physical_plot.__name__
     hist_data_tools_matrices_physical \
-        .hist_function_header_print_plot(function_name, year)
+        .hist_function_header_print_plot(function_name, year, 'returns')
 
     try:
 
