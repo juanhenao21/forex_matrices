@@ -9,6 +9,7 @@ This script requires the following modules:
     * pickle
     * typing
     * matplotlib
+    * numpy
 
 The module contains the following functions:
     * hist_save_data - saves computed data.
@@ -18,6 +19,7 @@ The module contains the following functions:
     * hist_start_folders - creates folders to save data and plots.
     * hist_initial_message - prints the initial message with basic information.
     * hist_weeks - tuple with the numbers from 1 to 53 representing the weeks.
+    * gaussian_distribution - compute gaussian distribution values.
     * main - the main function of the script.
 
 .. moduleauthor:: Juan Camilo Henao Londono <www.github.com/juanhenao21>
@@ -31,6 +33,7 @@ import pickle
 from typing import Any, List, Tuple
 
 from matplotlib import pyplot as plt  # type: ignore
+import numpy as np  # type: ignore
 
 # -----------------------------------------------------------------------------
 
@@ -222,6 +225,13 @@ def hist_weeks() -> Tuple[str, ...]:
             week_num.append(f'{val}')
 
     return tuple(week_num)
+
+# -----------------------------------------------------------------------------
+
+
+def gaussian_distribution(mean, variance, x):
+    return (1 / (2 * np.pi * variance) ** 0.5) \
+        * np.exp(-((x - mean) ** 2) / (2 * variance))
 
 # -----------------------------------------------------------------------------
 
