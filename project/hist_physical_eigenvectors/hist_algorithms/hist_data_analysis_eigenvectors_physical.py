@@ -1,7 +1,7 @@
 '''HIST data analysis module.
 
-The functions in the module compute the response function in trade time scale
-from the Historic Rate Data from HIST Capital data in a year.
+The functions in the module compute the eigenvectors from correlation matrices
+in physical time scale from the Historic Rate Data from HIST Capital data.
 
 This script requires the following modules:
     * os
@@ -10,9 +10,8 @@ This script requires the following modules:
     * pandas
 
 The module contains the following functions:
-    * hist_fx_correlations_physical_data - computes the correlation matrices
-      for different time intervals.
-    * hist_fx_returns-year_physical_data - concatenates the returns of a year
+    * hist_fx_eigenvectors_physical_data - computes the eigenvectors of
+      correlation matrices for different time intervals.
     * main - the main function of the script.
 
 ..moduleauthor:: Juan Camilo Henao Londono <www.github.com/juanhenao21>
@@ -24,89 +23,16 @@ import os
 import pickle
 from typing import List, Tuple
 
+import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 
-import hist_data_tools_matrices_physical
+import hist_data_tools_eigenvectors_physical
 
 # -----------------------------------------------------------------------------
 
 
-def hist_fx_returns_year_physical_data(fx_pairs: List[str], year: str) -> None:
-    """Concatenates the returns of a year for different forex pairs.
-
-    :param fx_pairs: list of the string abbreviation of the forex pairs to be
-     analyzed (i.e. ['eur_usd', 'gbp_usd']).
-    :param year: string of the year to be analyzed (i.e. '2016').
-    :return: None -- The function saves the data in a file and does not return
-     a value.
-    """
-
-    weeks: Tuple[str, ...] = hist_data_tools_matrices_physical.hist_weeks()
-
-    function_name: str = hist_fx_returns_year_physical_data.__name__
-    hist_data_tools_matrices_physical \
-        .hist_function_header_print_data(function_name, year, 'returns')
-
-    try:
-
-        fx_df_concat: pd.DataFrame = pd.DataFrame()
-
-        fx_pair: str
-        for fx_pair in fx_pairs:
-            # Load first week data
-            fx_data: pd.DataFrame = pickle.load(open(
-                f'../../hist_data/physical_basic_data_{year}/hist_fx_physical'
-                + f'_basic_data/{fx_pair}/hist_fx_physical_basic_data'
-                + f'_{fx_pair}_w01.pickle', 'rb'))
-
-            fx_series_concat = fx_data['Returns']
-
-            week: str
-            for week in weeks[1:]:
-                # Load data
-                fx_data = pickle.load(open(
-                    f'../../hist_data/physical_basic_data_{year}/hist_fx'
-                    + f'_physical_basic_data/{fx_pair}/hist_fx_physical_basic'
-                    + f'_data_{fx_pair}_w{week}.pickle', 'rb'))
-
-                fx_series_concat = pd.concat([fx_series_concat,
-                                              fx_data['Returns']])
-
-            fx_df_concat = pd.concat([fx_df_concat, fx_series_concat], axis=1)\
-                             .rename(columns={'Returns': fx_pair})
-
-        if (not os.path.isdir(
-                f'../../hist_data/matrices_physical_{year}/hist_fx_matrices'
-                + f'_physical_data/')):
-
-            try:
-                os.mkdir(
-                    f'../../hist_data/matrices_physical_{year}/hist_fx'
-                    + f'_matrices_physical_data/')
-                print('Folder to save data created')
-
-            except FileExistsError:
-                print('Folder exists. The folder was not created')
-
-        pickle.dump(fx_df_concat, open(
-                        f'../../hist_data/matrices_physical_{year}/hist_fx'
-                        + f'_matrices_physical_data/hist_fx_returns_matrices'
-                        + f'_physical_data_{year}.pickle', 'wb'))
-
-        del fx_data
-        del fx_series_concat
-        del fx_df_concat
-
-    except FileNotFoundError as error:
-        print('No data')
-        print(error)
-        print()
-
-# -----------------------------------------------------------------------------
-
-
-def hist_fx_correlations_physical_data(year: str, interval: str) -> None:
-    """Computes the correlation matrix in an interval of time.
+def hist_fx_eigenvectors_physical_data(year: str, interval: str) -> None:
+    """Computes the eigenvectors of correlation matrix in an interval of time.
 
     :param year: string of the year to be analyzed (i.e. '2016').
     :param interval: string of the interval to be analyzed (i.e. 'week',
@@ -115,16 +41,12 @@ def hist_fx_correlations_physical_data(year: str, interval: str) -> None:
      a value.
     """
 
-    function_name: str = hist_fx_correlations_physical_data.__name__
-    hist_data_tools_matrices_physical \
-        .hist_function_header_print_data(function_name, year, 'corr')
+    function_name: str = hist_fx_eigenvectors_physical_data.__name__
+    hist_data_tools_eigenvectors_physical \
+        .hist_function_header_print_data(function_name, year)
 
     try:
-        # Load data
-        fx_returns: pd.DataFrame = pickle.load(open(
-                        f'../../hist_data/matrices_physical_{year}/hist_fx'
-                        + f'_matrices_physical_data/hist_fx_returns_matrices'
-                        + f'_physical_data_{year}.pickle', 'rb'))
+
 
         freq: str
         periods: int
@@ -139,11 +61,41 @@ def hist_fx_correlations_physical_data(year: str, interval: str) -> None:
             periods = 4
 
         if interval == 'year':
-            corr: pd.DataFrame = fx_returns.corr()
-            hist_data_tools_matrices_physical \
-                .hist_save_data(corr, year, interval, '01')
+            # Load data
+            fx_corr: pd.DataFrame = pickle.load(open(
+                            f'../../hist_data/matrices_physical_{year}/hist_fx'
+                            + f'_matrices_physical_data/hist_fx_corr_physical'
+                            + f'_data_{year}_int_{interval}_01.pickle', 'rb'))
+
+            print('Correlation Matrix')
+            print()
+            print(fx_corr)
+            print()
+            eig_val: np.ndarray
+            eig_vec: np.ndarray
+            eig_val, eig_vec = np.linalg.eig(fx_corr)
+            # print(eig_val)
+
+            eig_vec_sort = eig_vec[:, np.argsort(eig_val)[::-1]]
+            print()
+            print('Eigenvectors sorted according to the largest Eigenvalues')
+            print()
+            print(eig_vec_sort)
+            # eig_vec_sort_df = pd.DataFrame(data=eig_vec_sort,
+            #                                index=fx_corr.columns,
+            #                                columns=fx_corr.columns)
+            # print(eig_vec_sort_df)
+
+            # hist_data_tools_eigenvectors_physical \
+            #     .hist_save_data(corr, year, interval, '01')
 
         else:
+            # Load data
+            fx_returns: pd.DataFrame = pickle.load(open(
+                            f'../../hist_data/matrices_physical_{year}/hist_fx'
+                            + f'_matrices_physical_data/hist_fx_corr_physical_data'
+                            + f'_{year}_int_{interval}_{t_idx}'
+                            + f'_physical_data_{year}.pickle', 'rb'))
             time_int: pd.DatetimeIndex = \
                 pd.date_range(f'{year}-01-01', periods=periods, freq=freq)
 
@@ -170,8 +122,7 @@ def hist_fx_correlations_physical_data(year: str, interval: str) -> None:
             hist_data_tools_matrices_physical \
                 .hist_save_data(corr, year, interval, t_idx_str)
 
-        del fx_returns
-        del corr
+        del fx_corr
 
     except FileNotFoundError as error:
         print('No data')
@@ -188,6 +139,8 @@ def main() -> None:
 
     :return: None.
     """
+
+    hist_fx_eigenvectors_physical_data('2019', 'year')
 
 # -----------------------------------------------------------------------------
 
