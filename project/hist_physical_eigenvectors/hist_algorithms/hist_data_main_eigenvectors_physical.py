@@ -1,15 +1,15 @@
 '''HIST data main module.
 
-The functions in the module compute the responses of the Historic Rate data
-from HIST Capital in a year.
+The functions in the module compute the eigenvectors from correlation matrices
+of the Historic Rate data from HIST Capital in different time intervals.
 
 This script requires the following modules:
     * itertools
     * multiprocessing
     * typing
-    * hist_data_analysis_responses_physical
-    * hist_data_plot_responses_physical
-    * hist_data_tools_responses_physical
+    * hist_data_analysis_eigenvectors_physical
+    * hist_data_plot_eigenvectors_physical
+    * hist_data_tools_eigenvectors_physical
 
 The module contains the following functions:
     * hist_data_plot_generator - generates all the analysis and plots from the
@@ -22,17 +22,18 @@ The module contains the following functions:
 # -----------------------------------------------------------------------------
 # Modules
 
+from itertools import product as iprod
+import multiprocessing as mp
 from typing import List
 
-import hist_data_analysis_matrices_physical
-import hist_data_plot_matrices_physical
-import hist_data_tools_matrices_physical
+import hist_data_analysis_eigenvectors_physical
+import hist_data_plot_eigenvectors_physical
+import hist_data_tools_eigenvectors_physical
 
 # -----------------------------------------------------------------------------
 
 
-def hist_data_plot_generator(fx_pairs: List[str], years: List[str],
-                             intervals: List[str]) -> None:
+def hist_data_plot_generator(years: List[str], intervals: List[str]) -> None:
     """Generates all the analysis and plots from the HIST data.
 
     :param fx_pairs: list of the string abbreviation of the forex pairs to be
@@ -45,22 +46,23 @@ def hist_data_plot_generator(fx_pairs: List[str], years: List[str],
      a value.
     """
 
+    # Parallel computing
+    with mp.Pool(processes=mp.cpu_count()) as pool:
+        # Basic functions
+        pool.starmap(hist_data_analysis_eigenvectors_physical
+                     .hist_fx_eigenvectors_physical_data,
+                     iprod(years, intervals))
+
     # Specific functions
     year: str
     for year in years:
-        # hist_data_analysis_matrices_physical. \
-        #     hist_fx_returns_year_physical_data(fx_pairs, year)
 
         interval: str
         for interval in intervals:
-            hist_data_analysis_matrices_physical. \
-                hist_fx_correlations_physical_data(year, interval)
 
-            hist_data_plot_matrices_physical. \
-                hist_fx_correlations_physical_plot(year, interval)
+            hist_data_plot_eigenvectors_physical. \
+                hist_fx_eigenvectors_physical_plot(year, interval)
 
-            # hist_data_plot_matrices_physical. \
-            #     hist_fx_returns_distributions_physical_plot(year, interval)
 
 # -----------------------------------------------------------------------------
 
@@ -73,22 +75,20 @@ def main() -> None:
     :return: None.
     """
 
-    hist_data_tools_matrices_physical.hist_initial_message()
+    hist_data_tools_eigenvectors_physical.hist_initial_message()
 
     # Forex pairs and weeks to analyze
     # Response function analysis
     # The other years will be downloaded with the spread data
     years: List[str] = ['2019']
-    fx_pairs: List[str] = ['eur_usd', 'gbp_usd', 'usd_jpy', 'aud_usd',
-                           'usd_chf', 'usd_cad', 'nzd_usd']
     intervals: List[str] = ['week', 'month', 'quarter', 'year']
 
     # Basic folders
-    hist_data_tools_matrices_physical.hist_start_folders(years)
+    hist_data_tools_eigenvectors_physical.hist_start_folders(years)
 
     # Run analysis
     # Analysis and plot
-    hist_data_plot_generator(fx_pairs, years, intervals)
+    hist_data_plot_generator(years, intervals)
 
     print('Ay vamos!!!')
 
