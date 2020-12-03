@@ -170,7 +170,7 @@ def hist_fx_correlations_physical_plot(year: str, interval: str) -> None:
     function_name: str = \
         hist_fx_correlations_physical_plot.__name__
     hist_data_tools_matrices_physical \
-        .hist_function_header_print_plot(function_name, year)
+        .hist_function_header_print_plot(function_name, year, kind='correlations')
 
     try:
 
@@ -214,11 +214,13 @@ def hist_fx_correlations_physical_plot(year: str, interval: str) -> None:
 
             if interval in ('week', 'month'):
                 sns.heatmap(corr, ax=ax_sub, cbar=per == 1,
-                            cbar_ax=None if (per-1) else cbar_ax)
+                            cbar_ax=None if (per-1) else cbar_ax,
+                            vmin=-1, vmax=1)
 
             else:
                 sns.heatmap(corr, annot=True, ax=ax_sub, cbar=per == 1,
-                            cbar_ax=None if (per-1) else cbar_ax)
+                            cbar_ax=None if (per-1) else cbar_ax,
+                            vmin=-1, vmax=1)
 
             if interval == 'week':
                 ax_sub.tick_params(axis='x', bottom=False, labelbottom=False)
